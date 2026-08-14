@@ -1,0 +1,87 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+}
+
+const {
+  title = "Filip Řeháček",
+  description = "Backend developer and Software engineer",
+  ogTitle = "Filip Řeháček (FOFOLA_1)",
+  ogDescription = "Backend developer and Software engineer",
+} = Astro.props;
+
+const siteURL = Astro.site ? Astro.site.href : 'https://fofola1.github.io';
+const canonicalURL = new URL(Astro.url.pathname, siteURL).href;
+const ogImageURL = new URL('/img/fofola_small.png', siteURL).href;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0V47VTJQBP"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-0V47VTJQBP');
+    </script>
+    <meta charset="UTF-8" />
+    <meta
+      name="google-site-verification"
+      content="jqPHUBHHggbDHEZQaZsj5tnAbUGUpbaIR7ls6S5wjjI"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+
+    <link rel="icon" href="/img/fofola_small.png" type="image/png" />
+    <link rel="canonical" href={canonicalURL} />
+
+    <meta content={ogTitle} property="og:title" />
+    <meta content={ogDescription} property="og:description" />
+    <meta content={ogImageURL} property="og:image" />
+    <meta content={canonicalURL} property="og:url" />
+    <meta content={description} name="description" />
+    <meta content="website" property="og:type" />
+
+    <meta content="summary" name="twitter:card" />
+    <meta content={ogTitle} name="twitter:title" />
+    <meta content={ogDescription} name="twitter:description" />
+    <meta content={ogImageURL} name="twitter:image" />
+  </head>
+  <body
+    class="font-kode bg-gradient-to-br from-bg1 to-bg2 text-white min-h-[100vh] flex flex-col justify-between"
+  >
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-bg3 focus:px-4 focus:py-2 focus:rounded-lg focus:border focus:border-white">
+      Skip to main content
+    </a>
+    <Header />
+
+    <div id="main-content" class="flex-1">
+      <slot />
+    </div>
+
+    <Footer />
+
+    <script>
+      let pageTitle = document.title;
+      const attentionMessage = 'Miss you ❤';
+
+      document.addEventListener('visibilitychange', () => {
+        const isPageActive = !document.hidden;
+        if (!isPageActive) {
+          document.title = attentionMessage;
+        } else {
+          document.title = pageTitle;
+        }
+      });
+    </script>
+  </body>
+</html>

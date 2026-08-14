@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title="Projects - Filip Řeháček" description="Explore my open-source projects, apps, Rainmeter skins, and Minecraft plugins.">
+  <main class="px-[calc(100%/2-730px)] mx-5 mt-10">
+    <h1 class="font-bold xl:text-4xl text-3xl mb-6">Projects</h1>
+    <div
+      class="grid grid-flow-row gap-5 auto-cols-max xl:grid-cols-3 md:grid-cols-2 grid-cols-1 auto-rows-auto justify-center"
+    >
+      {
+        projects.map((project) => (
+          <ProjectCard
+            title={project.data.title}
+            subtitle={project.data.subtitle}
+            description={project.data.description}
+            coverImage={project.data.coverImage}
+            coverAlt={project.data.coverAlt}
+            url={`/projects/${project.id}`}
+            imageObjectPos={project.id === 'counting_bot' ? 'object-bottom' : 'object-top'}
+            loading="eager"
+            fetchpriority="high"
+          />
+        ))
+      }
+    </div>
+  </main>
+</BaseLayout>

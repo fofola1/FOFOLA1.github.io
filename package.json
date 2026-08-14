@@ -4,8 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npx @tailwindcss/cli -i input.css -o output.css",
-    "watch": "npx @tailwindcss/cli -i input.css -o output.css --watch"
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "repository": {
     "type": "git",
@@ -21,6 +24,13 @@
   "homepage": "https://github.com/FOFOLA1/FOFOLA1.github.io#readme",
   "dependencies": {
     "@tailwindcss/cli": "^4.1.12",
-    "tailwindcss": "^4.1.12"
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.2.1",
+    "tailwindcss": "^4.1.12",
+    "typescript": "^7.0.2"
+  },
+  "devDependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "@casoon/astro-post-audit": "^0.5.3"
   }
 }

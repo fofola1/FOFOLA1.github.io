@@ -1,0 +1,60 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  title: string;
+  subtitle?: string;
+  description: string;
+  coverImage: ImageMetadata | string;
+  coverAlt?: string;
+  url: string;
+  imageObjectPos?: string;
+  loading?: 'eager' | 'lazy';
+  fetchpriority?: 'high' | 'low' | 'auto';
+}
+
+const {
+  title,
+  subtitle,
+  description,
+  coverImage,
+  coverAlt = title,
+  url,
+  imageObjectPos = 'object-top',
+  loading = 'lazy',
+  fetchpriority = 'auto',
+} = Astro.props;
+
+const displayTitle = subtitle ? `${title}, ${subtitle.replace(/^-?\s*/, '')}` : title;
+---
+
+<a href={url}>
+  <div
+    class="border-bg1 border-2 grid rounded-3xl hover:scale-[101%] hover:-translate-y-1 duration-150 overflow-hidden bg-bg3 hover:bg-bg4 h-full"
+  >
+    {typeof coverImage === 'string' ? (
+      <img
+        src={coverImage}
+        alt={coverAlt}
+        class={`w-full object-cover ${imageObjectPos} h-[300px]`}
+        loading={loading}
+        fetchpriority={fetchpriority}
+      />
+    ) : (
+      <Image
+        src={coverImage}
+        alt={coverAlt}
+        class={`w-full object-cover ${imageObjectPos} h-[300px]`}
+        loading={loading}
+        fetchpriority={fetchpriority}
+      />
+    )}
+    <div class="h-min mx-4 my-2">
+      <h2 class="text-xl font-semibold">
+        {displayTitle}
+      </h2>
+      <span class="text-lg">{description}</span>
+    </div>
+  </div>
+</a>

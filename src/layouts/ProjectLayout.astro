@@ -1,0 +1,72 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+
+const { project } = Astro.props;
+const { title, subtitle, coverImage, coverAlt, githubUrl, widgets } = project.data;
+---
+
+<BaseLayout title={`${title} - Filip Řeháček`} description={project.data.description}>
+  <main class="px-[calc(100%/2-730px)] mx-5 mt-10">
+    <h1 class="xl:text-4xl text-3xl font-bold">
+      {title}<span class="text-lg"> {subtitle}</span>
+    </h1>
+
+    <div
+      class="flex flex-row justify-between align-top md:flex-nowrap xl:flex-nowrap flex-wrap mt-4"
+    >
+      <div class="prose prose-invert max-w-none flex-1">
+        <slot />
+
+        {widgets && widgets.length > 0 && (
+          <div class="pt-8">
+            <h2 class="xl:text-3xl text-2xl pb-2 font-bold">
+              Widgets currently available
+            </h2>
+            <ul class="text-lg list-disc ml-10">
+              {widgets.map((widget) => (
+                <li>
+                  <b>{widget.name}</b> - {widget.description}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      <Image
+        src={coverImage}
+        alt={coverAlt}
+        class="rounded-2xl md:ml-5 xl:ml-5 mt-5 ml-0 w-full md:max-w-[30%] xl:max-w-[30%] min-w-[300px] h-fit"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </div>
+
+    <div
+      class="pb-10 pt-14 flex flex-wrap gap-3 justify-between text-sm md:text-lg xl:text-lg font-semibold"
+    >
+      <a href="/projects" class="group">
+        &lt;- <span class="group-hover:underline">Back</span>
+      </a>
+      {githubUrl && (
+        <a
+          href={githubUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="group text-right"
+        >
+          <span class="group-hover:underline"
+            >Find out more in Github repository</span
+          >
+          -&gt;
+        </a>
+      )}
+    </div>
+  </main>
+</BaseLayout>

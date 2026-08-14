@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ContactBadge from '../components/ContactBadge.astro';
+import githubImg from '../assets/img/github.png';
+import discordImg from '../assets/img/discord.png';
+import linkedinImg from '../assets/img/linkedin.png';
+import instagramImg from '../assets/img/instagram.png';
+import mailImg from '../assets/img/mail.png';
+import spotifyImg from '../assets/img/spotify.png';
+---
+
+<BaseLayout title="Contact - Filip Řeháček" description="Get in touch with Filip Řeháček via GitHub, Discord, LinkedIn, Instagram, Email, or Spotify.">
+  <main class="px-[calc(100%/2-730px)] mt-10">
+    <h1 class="font-bold xl:text-4xl text-3xl text-center mb-6">Contact</h1>
+    <div id="contacts" class="mt-8">
+      <ContactBadge
+        href="https://github.com/FOFOLA1"
+        iconSrc={githubImg}
+        alt="Github"
+        label="@FOFOLA1"
+        imgPaddingClass="h-[75px] xl:pl-3 md:pl-3 pl-2"
+      />
+      <ContactBadge
+        href="https://discordapp.com/users/1308882465821298861"
+        iconSrc={discordImg}
+        alt="Discord"
+        label="@FOFOLA1"
+        imgPaddingClass="md:pl-4 xl:pl-4 pl-3"
+      />
+      <ContactBadge
+        href="https://www.linkedin.com/in/filip-rehacek"
+        iconSrc={linkedinImg}
+        alt="Linked in"
+        label="@filip-rehacek"
+        imgPaddingClass="md:pl-4 xl:pl-4 pl-3"
+      />
+      <ContactBadge
+        href="https://www.instagram.com/fl0x1c3k_"
+        iconSrc={instagramImg}
+        alt="Instagram"
+        label="@fl0x1c3k_"
+        imgPaddingClass="md:pl-4 xl:pl-4 pl-3"
+      />
+      <ContactBadge
+        isCopyEmail={true}
+        iconSrc={mailImg}
+        alt="E-mail"
+        label="filip.rehacek@outlook.cz"
+        imgPaddingClass="pl-4 md:pl-6 xl:pl-6"
+      />
+      <ContactBadge
+        href="https://open.spotify.com/user/44a54g4uqynp1pgzunc9wy0si"
+        iconSrc={spotifyImg}
+        alt="Spotify"
+        label="@FOFOLA_1"
+        imgPaddingClass="pl-3"
+      />
+    </div>
+  </main>
+</BaseLayout>

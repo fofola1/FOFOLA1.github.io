@@ -1,0 +1,37 @@
+---
+import Navbar from './Navbar.astro';
+---
+
+<header
+  class="flex justify-between flex-row px-[calc(100vw/2-750px)] xl:h-[60px] md:h-[60px] h-[70px] border-b-white xl:border-b md:border-b border-b-0 relative flex-wrap"
+>
+  <a href="/">
+    <span class="text-2xl font-bold px-5 pt-5 xl:pt-4 md:pt-4 block">
+      Filip Řeháček
+    </span>
+  </a>
+
+  <input
+    type="checkbox"
+    id="burger"
+    aria-label="Toggle navigation menu"
+    class="burgermenu visuallyHidden inline md:hidden xl:hidden px-5 py-5 mt-[-5px]"
+  />
+  <label
+    for="burger"
+    class="inline md:hidden xl:hidden px-5 pt-6 mt-[-5px]"
+  >
+    <div class="hamburger">
+      <span class="bar bar1"></span>
+      <span class="bar bar2"></span>
+      <span class="bar bar3"></span>
+      <span class="bar bar4"></span>
+    </div>
+  </label>
+
+  <div
+    class="h-[2px] bg-white w-[100%] absolute bottom-0 md:hidden xl:hidden"
+  ></div>
+
+  <Navbar />
+</header>

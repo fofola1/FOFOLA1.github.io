@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroSection from '../components/HeroSection.astro';
+import AboutPreviewCard from '../components/AboutPreviewCard.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title="Filip Řeháček">
+  <main class="px-[calc(100%/2-730px)]">
+    <HeroSection />
+
+    <AboutPreviewCard />
+
+    <div class="mx-5 mt-[100px]">
+      <a href="/projects">
+        <h2
+          class="font-semibold lg:text-6xl text-4xl text-start md:max-xl:py-10 py-5 px-2 hover:underline"
+        >
+          Projects
+        </h2>
+      </a>
+      <div
+        class="grid grid-flow-row gap-5 auto-cols-max xl:grid-cols-3 md:grid-cols-2 grid-cols-1 auto-rows-auto justify-center"
+      >
+        {
+          projects.map((project) => (
+            <ProjectCard
+              title={project.data.title}
+              subtitle={project.data.subtitle}
+              description={project.data.description}
+              coverImage={project.data.coverImage}
+              coverAlt={project.data.coverAlt}
+              url={`/projects/${project.id}`}
+              imageObjectPos={project.id === 'counting_bot' ? 'object-bottom' : 'object-top'}
+            />
+          ))
+        }
+      </div>
+      <a href="/projects" class="text-right block text-xl p-5 group">
+        <span class="group-hover:underline">More</span> -&gt;
+      </a>
+    </div>
+  </main>
+</BaseLayout>

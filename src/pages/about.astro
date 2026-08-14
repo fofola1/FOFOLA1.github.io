@@ -1,0 +1,138 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { Image } from 'astro:assets';
+import pythonImg from '../assets/img/python.png';
+import javaImg from '../assets/img/java.png';
+import tailwindImg from '../assets/img/tailwind.png';
+import kotlinImg from '../assets/img/kotlin.png';
+import csImg from '../assets/img/cs.png';
+import djangoImg from '../assets/img/django.png';
+import dbImg from '../assets/img/db.png';
+import htmlImg from '../assets/img/html.png';
+import cImg from '../assets/img/c.png';
+import cssImg from '../assets/img/css.png';
+---
+
+<BaseLayout title="About me - Filip Řeháček" description="Learn more about Filip Řeháček, computer science student, software engineer, education, and tech skills.">
+  <main class="px-[calc(100%/2-730px)] mx-5 mt-10">
+    <div class="flex flex-row justify-between align-middle gap-5 flex-wrap">
+      <div
+        class="bg-bg3 hover:bg-bg4 size-fit rounded-2xl shadow-[inset_-3px_8px_15px_0_rgba(255,255,255,0.1)] py-3 px-5 shrink grow hover:scale-[101%] transition-all hover:-translate-y-1 h-auto"
+      >
+        <h1 class="text-2xl md:text-3xl xl:text-3xl font-semibold text-center">
+          About me
+        </h1>
+        <div class="text-lg xl:text-xl md:text-xl w-full mt-2">
+          <p class="text-wrap pb-3">
+            I'm 18 years old student of <u>computer science</u>,
+            <b>Filip Řeháček</b>.
+          </p>
+          <p class="text-wrap pb-3 first-letter:ml-3">
+            Passionate about learning new things in IT and using my skills to create applications and fun projects that help others and save them work and time. Often get too focused on projects, striving for perfection, which sometimes results in poor time management (but I still make it before deadline).
+          </p>
+          <p class="text-wrap pb-3 first-letter:ml-3">
+            After finishing elementary school I went to study IT on
+            <a href="https://spse.cz" target="_blank" rel="noopener noreferrer" class="hover:underline">SPŠE high school</a>. A year after I left because of my higher expectations from education, and I transferred to
+            <a href="https://delta-skola.cz" target="_blank" rel="noopener noreferrer" class="hover:underline">Delta high school</a>
+            where I now continue my studies in field of IT.
+          </p>
+          <p class="text-wrap pb-3 first-letter:ml-3">
+            I am currently also part of <a href="https://studentstc.cz" target="_blank" rel="noopener noreferrer" class="hover:underline">Student Trainee Center program by Microsoft</a> where I am learning a lot about modern technologies and team work. Thanks to this program I have opportunity not just to work on real world projects and gain experience that will help me in my future career, but also try to work at Microsoft Development Center in Prague as intern.
+          </p>
+          <p class="text-wrap pb-3 first-letter:ml-3">
+            My dream is to automate everything with power of programming and computer science, so everyone will have more free time and don't need to worry about small things.
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="bg-bg3 hover:bg-bg4 size-fit rounded-2xl shadow-[inset_-3px_8px_15px_0_rgba(255,255,255,0.1)] py-3 px-5 shrink grow hover:scale-[101%] transition-all hover:-translate-y-1 h-auto"
+      >
+        <h2 class="text-2xl md:text-3xl xl:text-3xl font-semibold text-center">
+          Education
+        </h2>
+
+        <div class="grid grid-flow-row text-lg xl:text-xl md:text-xl w-full mt-2">
+          <a
+            href="https://cz.linkedin.com/company/studenttraineecenter"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="pb-1 flex flex-row justify-between w-full group"
+          >
+            <span class="group-hover:underline pr-7 text-wrap">Microsoft STC</span>
+            <span class="md:text-nowrap xl:text-nowrap text-right">Jan 2025-(Dec 2026)</span>
+          </a>
+          <a
+            href="https://delta-skola.cz"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="pb-1 flex flex-row justify-between w-full group"
+          >
+            <span class="group-hover:underline pr-7 text-wrap">DELTA SŠIE</span>
+            <span class="md:text-nowrap xl:text-nowrap text-right">2024-(2027)</span>
+          </a>
+          <a
+            href="https://spse.cz"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="pb-1 flex flex-row justify-between w-full group"
+          >
+            <span class="group-hover:underline pr-7 text-wrap">SPŠE Pardubice (finished first year)</span>
+            <span class="md:text-nowrap xl:text-nowrap text-right">2023-2024</span>
+          </a>
+          <a
+            href="https://zs-sporilov.eu"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="pb-1 flex flex-row justify-between w-full group"
+          >
+            <span class="group-hover:underline pr-7 text-wrap">ZŠ Spořilov</span>
+            <span class="md:text-nowrap xl:text-nowrap text-right">2013-2023</span>
+          </a>
+        </div>
+      </div>
+
+      <div
+        class="bg-bg3 hover:bg-bg4 size-fit rounded-2xl shadow-[inset_-3px_8px_15px_0_rgba(255,255,255,0.1)] py-3 px-5 shrink grow hover:scale-[101%] transition-all hover:-translate-y-1 h-auto"
+      >
+        <h2 class="text-2xl md:text-3xl xl:text-3xl font-semibold text-center">
+          Knowledge
+        </h2>
+        <ul class="text-lg xl:text-xl md:text-xl w-full mt-2">
+          <li class="pb-1 text-nowrap">Linux</li>
+          <li class="pb-1 text-nowrap">Mobile apps</li>
+          <li class="pb-1 text-nowrap">Desktop apps</li>
+          <li class="pb-1 text-nowrap">Minecraft plugins</li>
+          <li class="pb-1 text-nowrap">Discord apps</li>
+        </ul>
+      </div>
+
+      <div
+        class="bg-bg3 hover:bg-bg4 size-fit rounded-2xl shadow-[inset_-3px_8px_15px_0_rgba(255,255,255,0.1)] py-3 px-5 shrink grow hover:scale-[101%] transition-all hover:-translate-y-1 xl:max-w-[50%] md:max-w-[50%] h-auto"
+      >
+        <h2 class="text-2xl md:text-3xl xl:text-3xl font-semibold text-center">
+          Technology
+        </h2>
+        <div class="flex justify-center flex-nowrap flex-col align-middle mt-3">
+          <div class="flex justify-center flex-nowrap flex-row">
+            <Image src={pythonImg} alt="Python" class="h-[45px] w-auto m-1" loading="eager" fetchpriority="high" />
+            <Image src={javaImg} alt="Java" class="h-[45px] w-auto m-1" loading="eager" fetchpriority="high" />
+            <Image src={tailwindImg} alt="Tailwind" class="h-[45px] w-auto m-1" loading="eager" fetchpriority="high" />
+          </div>
+
+          <div class="flex justify-center flex-nowrap flex-row">
+            <Image src={kotlinImg} alt="Kotlin" class="h-[45px] w-auto m-1" loading="eager" fetchpriority="high" />
+            <Image src={csImg} alt="C#" class="h-[45px] w-auto m-1" loading="eager" fetchpriority="high" />
+            <Image src={djangoImg} alt="Django" class="h-[45px] w-auto m-1" loading="eager" fetchpriority="high" />
+            <Image src={dbImg} alt="DB" class="h-[45px] w-auto m-1" loading="eager" fetchpriority="high" />
+          </div>
+          <div class="flex justify-center flex-nowrap flex-row">
+            <Image src={htmlImg} alt="HTML" class="h-[45px] w-auto m-1" loading="eager" fetchpriority="high" />
+            <Image src={cImg} alt="C" class="h-[45px] w-auto m-1" loading="eager" fetchpriority="high" />
+            <Image src={cssImg} alt="CSS" class="h-[45px] w-auto m-1" loading="eager" fetchpriority="high" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>

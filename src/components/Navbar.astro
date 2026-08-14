@@ -1,0 +1,47 @@
+---
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = Astro.url.pathname } = Astro.props;
+
+const navItems = [
+  { name: 'Projects', href: '/projects' },
+  { name: 'About me', href: '/about' },
+  { name: 'Contact', href: '/contact' },
+];
+
+function isActive(href: string) {
+  const cleanPath = currentPath.endsWith('/') && currentPath.length > 1 ? currentPath.slice(0, -1) : currentPath;
+  const cleanHref = href.endsWith('/') && href.length > 1 ? href.slice(0, -1) : href;
+  return cleanPath === cleanHref || cleanPath.startsWith(cleanHref + '/');
+}
+---
+
+<nav aria-label="Main Navigation">
+  <ul
+    class="hidden items-center xl:flex-row md:flex-row flex-col justify-between px-5 mt-[18px] md:mt-0 xl:mt-0 md:flex xl:flex z-10 bg-bg1 xl:bg-transparent md:bg-transparent xl:pt-0 md:pt-0 py-[20px] xl:py-0 md:py-0 transition-all duration-150"
+    id="menu"
+  >
+    {
+      navItems.map((item) => {
+        const active = isActive(item.href);
+        return (
+          <li
+            class={`md:w-[130px] w-[200px] xl:w-[130px] h-[55px] mt-[20px] xl:mt-[15px] md:mt-[15px] text-center table-cell align-middle transition-all ease-in-out duration-200 z-30 ${
+              active
+                ? 'md:text-[21px] text-[32px] xl:text-[21px] font-extrabold'
+                : 'md:text-[20px] text-[30px] xl:text-[20px] font-medium hover:text-[32px] md:hover:text-[21px] xl:hover:text-[21px] hover:font-bold'
+            }`}
+          >
+            <a href={item.href}>
+              <div>
+                <span>{item.name}</span>
+              </div>
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</nav>
