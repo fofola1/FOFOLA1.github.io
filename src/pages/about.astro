@@ -11,6 +11,9 @@ import dbImg from '../assets/img/db.png';
 import htmlImg from '../assets/img/html.png';
 import cImg from '../assets/img/c.png';
 import cssImg from '../assets/img/css.png';
+import { getAge } from '../utils/date';
+
+const age = getAge('2007-07-03');
 ---
 
 <BaseLayout title="About me - Filip Řeháček" description="Learn more about Filip Řeháček, computer science student, software engineer, education, and tech skills.">
@@ -24,7 +27,7 @@ import cssImg from '../assets/img/css.png';
         </h1>
         <div class="text-lg xl:text-xl md:text-xl w-full mt-2">
           <p class="text-wrap pb-3">
-            I'm 18 years old student of <u>computer science</u>,
+            I'm {age} years old student of <u>computer science</u>,
             <b>Filip Řeháček</b>.
           </p>
           <p class="text-wrap pb-3 first-letter:ml-3">

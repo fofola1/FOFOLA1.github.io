@@ -1,4 +1,7 @@
 ---
+import { getAge } from '../utils/date';
+
+const age = getAge('2007-07-03');
 ---
 
 <div
@@ -13,8 +16,8 @@
   </a>
   <div class="text-xl md:text-2xl xl:text-2xl px-4">
     <p>
-      Hi 👋, my name is <b>Filip Řeháček</b>. Currently I'm 18
-      years old student of Computer Science on awesome
+      Hi 👋, my name is <b>Filip Řeháček</b>. Currently I'm {age} years
+      old student of Computer Science on awesome
       prestigious high school
       <b>
         <a
