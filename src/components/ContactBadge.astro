@@ -28,21 +28,27 @@ const {
 {
   isCopyEmail ? (
     <a class="cursor-pointer copy-email-btn" href="mailto:filip.rehacek@outlook.cz">
-      {typeof iconSrc === 'string' ? (
-        <img src={iconSrc} alt={alt} class={imgPaddingClass} loading={loading} fetchpriority={fetchpriority} />
-      ) : (
-        <Image src={iconSrc} alt={alt} class={imgPaddingClass} loading={loading} fetchpriority={fetchpriority} />
-      )}
+      <div class="badge-icon-wrap">
+        {typeof iconSrc === 'string' ? (
+          <img src={iconSrc} alt={alt} class={imgPaddingClass} loading={loading} fetchpriority={fetchpriority} />
+        ) : (
+          <Image src={iconSrc} alt={alt} class={imgPaddingClass} loading={loading} fetchpriority={fetchpriority} />
+        )}
+      </div>
       <span>{label}</span>
+      <div class="badge-spacer" aria-hidden="true"></div>
     </a>
   ) : (
     <a href={href} target="_blank" rel="noopener noreferrer">
-      {typeof iconSrc === 'string' ? (
-        <img src={iconSrc} alt={alt} class={imgPaddingClass} loading={loading} fetchpriority={fetchpriority} />
-      ) : (
-        <Image src={iconSrc} alt={alt} class={imgPaddingClass} loading={loading} fetchpriority={fetchpriority} />
-      )}
+      <div class="badge-icon-wrap">
+        {typeof iconSrc === 'string' ? (
+          <img src={iconSrc} alt={alt} class={imgPaddingClass} loading={loading} fetchpriority={fetchpriority} />
+        ) : (
+          <Image src={iconSrc} alt={alt} class={imgPaddingClass} loading={loading} fetchpriority={fetchpriority} />
+        )}
+      </div>
       <span>{label}</span>
+      <div class="badge-spacer" aria-hidden="true"></div>
     </a>
   )
 }

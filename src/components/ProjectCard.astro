@@ -37,7 +37,7 @@ const displayTitle = subtitle ? `${title}, ${subtitle.replace(/^-?\s*/, '')}` : 
       <img
         src={coverImage}
         alt={coverAlt}
-        class={`w-full object-cover ${imageObjectPos} h-[300px]`}
+        class={`w-full object-cover ${imageObjectPos} aspect-[16/10] h-auto`}
         loading={loading}
         fetchpriority={fetchpriority}
       />
@@ -45,7 +45,7 @@ const displayTitle = subtitle ? `${title}, ${subtitle.replace(/^-?\s*/, '')}` : 
       <Image
         src={coverImage}
         alt={coverAlt}
-        class={`w-full object-cover ${imageObjectPos} h-[300px]`}
+        class={`w-full object-cover ${imageObjectPos} aspect-[16/10] h-auto`}
         loading={loading}
         fetchpriority={fetchpriority}
       />

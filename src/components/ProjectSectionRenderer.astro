@@ -1,0 +1,282 @@
+---
+interface Props {
+  coverImageSrc?: string;
+  coverAlt?: string;
+  imageSide?: 'left' | 'right' | 'alternate';
+}
+
+const { coverImageSrc, coverAlt = 'Project image', imageSide = 'right' } = Astro.props;
+---
+
+<div
+  id="project-sections-container"
+  class="w-full relative"
+  data-cover-src={coverImageSrc}
+  data-cover-alt={coverAlt}
+  data-image-side={imageSide}
+>
+  <div id="project-raw-content" class="prose prose-invert max-w-none">
+    <slot />
+  </div>
+</div>
+
+<script>
+  interface SectionData {
+    textElements: Element[];
+    images: { src: string; alt: string; el?: Element; explicitSide?: 'left' | 'right' }[];
+  }
+
+  function initProjectSections() {
+    const container = document.getElementById('project-sections-container');
+    const rawContent = document.getElementById('project-raw-content');
+    if (!container || !rawContent) return;
+
+    const coverSrc = container.getAttribute('data-cover-src');
+    const coverAlt = container.getAttribute('data-cover-alt') || 'Project cover image';
+    const globalImageSide = (container.getAttribute('data-image-side') || 'right') as 'left' | 'right' | 'alternate';
+
+    const children = Array.from(rawContent.children);
+    if (children.length === 0) return;
+
+    const rawSections: SectionData[] = [];
+    let currentText: Element[] = [];
+    let currentImgs: { src: string; alt: string; el?: Element; explicitSide?: 'left' | 'right' }[] = [];
+
+    function pushSection() {
+      if (currentText.length > 0 || currentImgs.length > 0) {
+        rawSections.push({
+          textElements: [...currentText],
+          images: [...currentImgs],
+        });
+        currentText = [];
+        currentImgs = [];
+      }
+    }
+
+    children.forEach((child) => {
+      const imgsInChild = child.tagName === 'IMG'
+        ? [child as HTMLImageElement]
+        : Array.from(child.querySelectorAll('img'));
+
+      const textOnly = child.textContent?.trim() || '';
+      const isPureImageContainer = imgsInChild.length > 0 && (child.tagName === 'IMG' || textOnly === '');
+
+      if (isPureImageContainer) {
+        imgsInChild.forEach((img) => {
+          let rawAlt = img.alt || img.getAttribute('alt') || 'Project image';
+          let explicitSide: 'left' | 'right' | undefined;
+
+          if (/^left[:\s]/i.test(rawAlt)) {
+            explicitSide = 'left';
+            rawAlt = rawAlt.replace(/^left[:\s]\s*/i, '');
+          } else if (/^right[:\s]/i.test(rawAlt)) {
+            explicitSide = 'right';
+            rawAlt = rawAlt.replace(/^right[:\s]\s*/i, '');
+          }
+
+          currentImgs.push({
+            src: img.src || img.getAttribute('src') || '',
+            alt: rawAlt,
+            explicitSide,
+            el: img,
+          });
+        });
+      } else {
+        if (currentImgs.length > 0) {
+          pushSection();
+        }
+        currentText.push(child);
+      }
+    });
+    pushSection();
+
+    let totalInlineImages = rawSections.reduce((acc, s) => acc + s.images.length, 0);
+    if (totalInlineImages === 0 && coverSrc) {
+      if (rawSections.length === 0) {
+        rawSections.push({ textElements: [], images: [{ src: coverSrc, alt: coverAlt }] });
+      } else {
+        rawSections[0].images.push({ src: coverSrc, alt: coverAlt });
+      }
+    }
+
+    const renderRoot = document.createElement('div');
+    renderRoot.className = 'flex flex-col gap-12 w-full';
+
+    rawSections.forEach((section, sIndex) => {
+      const firstImgSide = section.images[0]?.explicitSide;
+      let effectiveSide: 'left' | 'right' = 'right';
+
+      if (firstImgSide) {
+        effectiveSide = firstImgSide;
+      } else if (globalImageSide === 'left') {
+        effectiveSide = 'left';
+      } else if (globalImageSide === 'alternate') {
+        effectiveSide = sIndex % 2 === 1 ? 'left' : 'right';
+      } else {
+        effectiveSide = 'right';
+      }
+
+      const secWrapper = document.createElement('div');
+      const sideFlexClass = effectiveSide === 'left' ? 'lg:flex-row-reverse' : 'lg:flex-row';
+      secWrapper.className = `project-section flex flex-col ${sideFlexClass} gap-8 items-start justify-between w-full border-b border-white/10 pb-10 last:border-b-0 last:pb-0`;
+
+      // Text Column
+      const textCol = document.createElement('div');
+      textCol.className = 'project-text prose prose-invert max-w-none flex-1 w-full lg:w-[64%]';
+      section.textElements.forEach((el) => textCol.appendChild(el.cloneNode(true)));
+      secWrapper.appendChild(textCol);
+
+      // Media Column
+      if (section.images.length > 0) {
+        const mediaCol = document.createElement('div');
+        mediaCol.className = 'project-media w-full lg:w-[32%] min-w-[280px] shrink-0 lg:sticky lg:top-6';
+
+        if (section.images.length === 1) {
+          const singleImg = section.images[0];
+          const imgCard = createSingleImageCard(singleImg, section.images, 0);
+          mediaCol.appendChild(imgCard);
+        } else {
+          const carousel = createCarousel(section.images);
+          mediaCol.appendChild(carousel);
+        }
+
+        secWrapper.appendChild(mediaCol);
+      }
+
+      renderRoot.appendChild(secWrapper);
+    });
+
+    container.innerHTML = '';
+    container.appendChild(renderRoot);
+  }
+
+  function createSingleImageCard(
+    img: { src: string; alt: string },
+    gallery: { src: string; alt: string }[],
+    index: number
+  ): HTMLElement {
+    const card = document.createElement('div');
+    card.className = 'relative group cursor-pointer overflow-hidden rounded-2xl border border-white/15 shadow-xl bg-slate-950/70 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:border-purple-500/50 p-2 flex items-center justify-center min-h-[220px]';
+
+    const imageEl = document.createElement('img');
+    imageEl.src = img.src;
+    imageEl.alt = img.alt;
+    imageEl.className = 'w-full h-auto max-h-[480px] object-contain rounded-xl select-none mx-auto';
+
+    const badge = document.createElement('div');
+    badge.className = 'absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-medium text-sm backdrop-blur-[2px] rounded-2xl';
+    badge.innerHTML = `
+      <svg class="w-6 h-6 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+      </svg>
+      <span>Click to expand</span>
+    `;
+
+    card.appendChild(imageEl);
+    card.appendChild(badge);
+
+    card.addEventListener('click', () => {
+      if ((window as any).openLightbox) {
+        (window as any).openLightbox(gallery, index);
+      }
+    });
+
+    return card;
+  }
+
+  function createCarousel(images: { src: string; alt: string }[]): HTMLElement {
+    let activeIndex = 0;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'relative overflow-hidden rounded-2xl border border-white/15 shadow-2xl bg-slate-950/80 backdrop-blur-md group';
+
+    const slideContainer = document.createElement('div');
+    slideContainer.className = 'relative w-full h-[320px] sm:h-[400px] flex items-center justify-center bg-slate-950/80 cursor-pointer overflow-hidden p-2';
+
+    const slideImg = document.createElement('img');
+    slideImg.className = 'max-w-full max-h-full object-contain transition-opacity duration-300 select-none mx-auto';
+
+    const hoverOverlay = document.createElement('div');
+    hoverOverlay.className = 'absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white text-sm font-medium pointer-events-none z-10';
+    hoverOverlay.innerHTML = `
+      <svg class="w-6 h-6 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/>
+      </svg>
+      <span>Click to expand</span>
+    `;
+
+    slideContainer.appendChild(slideImg);
+    slideContainer.appendChild(hoverOverlay);
+
+    slideContainer.addEventListener('click', () => {
+      if ((window as any).openLightbox) {
+        (window as any).openLightbox(images, activeIndex);
+      }
+    });
+
+    const badge = document.createElement('div');
+    badge.className = 'absolute top-3 right-3 z-20 px-3 py-1 bg-black/70 backdrop-blur-md border border-white/20 rounded-full text-xs font-mono text-white font-semibold shadow-md pointer-events-none';
+
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'absolute left-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-black/60 hover:bg-purple-600/90 text-white border border-white/20 transition backdrop-blur-md cursor-pointer opacity-90 hover:opacity-100';
+    prevBtn.title = 'Previous image';
+    prevBtn.setAttribute('aria-label', 'Previous image');
+    prevBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>`;
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'absolute right-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-black/60 hover:bg-purple-600/90 text-white border border-white/20 transition backdrop-blur-md cursor-pointer opacity-90 hover:opacity-100';
+    nextBtn.title = 'Next image';
+    nextBtn.setAttribute('aria-label', 'Next image');
+    nextBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>`;
+
+    const dotsContainer = document.createElement('div');
+    dotsContainer.className = 'absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/10';
+
+    function updateCarousel() {
+      const current = images[activeIndex];
+      slideImg.src = current.src;
+      slideImg.alt = current.alt;
+      badge.textContent = `${activeIndex + 1} / ${images.length}`;
+
+      dotsContainer.innerHTML = '';
+      images.forEach((_, idx) => {
+        const dot = document.createElement('button');
+        dot.className = `w-2 h-2 rounded-full transition-all cursor-pointer ${idx === activeIndex ? 'bg-purple-400 w-5' : 'bg-white/40 hover:bg-white/70'}`;
+        dot.setAttribute('aria-label', `Go to slide ${idx + 1}`);
+        dot.addEventListener('click', (e) => {
+          e.stopPropagation();
+          activeIndex = idx;
+          updateCarousel();
+        });
+        dotsContainer.appendChild(dot);
+      });
+    }
+
+    prevBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      activeIndex = (activeIndex - 1 + images.length) % images.length;
+      updateCarousel();
+    });
+
+    nextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      activeIndex = (activeIndex + 1) % images.length;
+      updateCarousel();
+    });
+
+    wrapper.appendChild(slideContainer);
+    wrapper.appendChild(badge);
+    wrapper.appendChild(prevBtn);
+    wrapper.appendChild(nextBtn);
+    wrapper.appendChild(dotsContainer);
+
+    updateCarousel();
+    return wrapper;
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initProjectSections);
+  } else {
+    initProjectSections();
+  }
+</script>

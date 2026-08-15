@@ -1,0 +1,292 @@
+---
+---
+<!-- Lightbox Modal Container -->
+<div
+  id="image-lightbox"
+  class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex-col justify-between p-4 md:p-6 text-white select-none lightbox-backdrop"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Image lightbox"
+>
+  <!-- Top Navigation / Controls Bar -->
+  <div class="flex items-center justify-between w-full max-w-7xl mx-auto z-20 pb-2 border-b border-white/15">
+    <div id="lightbox-caption" class="text-sm md:text-base font-medium truncate max-w-[60%] text-slate-200">
+      Image Preview
+    </div>
+    
+    <div class="flex items-center gap-2 md:gap-3 text-xs md:text-sm">
+      <!-- Zoom Out Button -->
+      <button
+        id="lightbox-zoom-out"
+        class="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition cursor-pointer flex items-center justify-center font-bold"
+        title="Zoom Out (-)"
+        aria-label="Zoom Out"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+        </svg>
+      </button>
+
+      <!-- Zoom Level Indicator / Toggle -->
+      <button
+        id="lightbox-zoom-level"
+        class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition font-mono cursor-pointer min-w-[60px] text-center"
+        title="Reset / Toggle Zoom"
+        aria-label="Reset or Toggle Zoom"
+      >
+        100%
+      </button>
+
+      <!-- Zoom In Button -->
+      <button
+        id="lightbox-zoom-in"
+        class="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition cursor-pointer flex items-center justify-center font-bold"
+        title="Zoom In (+)"
+        aria-label="Zoom In"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+      </button>
+
+      <!-- Close Button -->
+      <button
+        id="lightbox-close"
+        class="p-2 ml-2 rounded-lg bg-red-500/30 hover:bg-red-500/60 transition cursor-pointer flex items-center justify-center"
+        title="Close (Esc)"
+        aria-label="Close Lightbox"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Viewport Area with Overlay Arrows -->
+  <div class="relative flex-1 flex items-center justify-center my-4 overflow-hidden">
+    <!-- Prev Arrow Button (High Z-Index, Outside Drag Viewport) -->
+    <button
+      id="lightbox-prev"
+      class="absolute left-4 z-40 p-3 rounded-full bg-black/70 hover:bg-purple-600/90 text-white transition backdrop-blur-md cursor-pointer border border-white/20 shadow-xl"
+      title="Previous Image"
+      aria-label="Previous Image"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+
+    <!-- Center Drag Viewport -->
+    <div id="lightbox-viewport" class="w-full h-full flex items-center justify-center overflow-hidden cursor-grab touch-none z-10">
+      <!-- Main Lightbox Image -->
+      <img
+        id="lightbox-image"
+        src=""
+        alt=""
+        class="max-h-full max-w-full object-contain transition-transform duration-100 ease-out select-none shadow-2xl rounded-lg"
+        draggable="false"
+      />
+    </div>
+
+    <!-- Next Arrow Button (High Z-Index, Outside Drag Viewport) -->
+    <button
+      id="lightbox-next"
+      class="absolute right-4 z-40 p-3 rounded-full bg-black/70 hover:bg-purple-600/90 text-white transition backdrop-blur-md cursor-pointer border border-white/20 shadow-xl"
+      title="Next Image"
+      aria-label="Next Image"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Bottom Footer Info -->
+  <div class="flex items-center justify-between w-full max-w-7xl mx-auto z-20 pt-2 border-t border-white/15 text-xs md:text-sm text-slate-300">
+    <div id="lightbox-counter" class="font-mono">1 / 1</div>
+    <div class="hidden sm:block text-slate-400">
+      Use Mouse Wheel or +/- to Zoom &bull; Drag to Pan &bull; Click Image to Toggle Zoom &bull; Esc to Close
+    </div>
+  </div>
+</div>
+
+<script>
+  interface LightboxItem {
+    src: string;
+    alt: string;
+  }
+
+  let galleryItems: LightboxItem[] = [];
+  let currentIndex = 0;
+  let currentZoom = 1;
+  let isDragging = false;
+  let startX = 0, startY = 0;
+  let translateX = 0, translateY = 0;
+
+  const modal = document.getElementById('image-lightbox');
+  const imgElement = document.getElementById('lightbox-image') as HTMLImageElement;
+  const viewport = document.getElementById('lightbox-viewport');
+  const caption = document.getElementById('lightbox-caption');
+  const counter = document.getElementById('lightbox-counter');
+  const zoomLevelBtn = document.getElementById('lightbox-zoom-level');
+  const prevBtn = document.getElementById('lightbox-prev');
+  const nextBtn = document.getElementById('lightbox-next');
+
+  // Prevent default native image drag
+  imgElement?.addEventListener('dragstart', (e) => e.preventDefault());
+
+  function openLightbox(items: LightboxItem[], index: number = 0) {
+    if (!items || items.length === 0) return;
+    galleryItems = items;
+    currentIndex = index;
+    currentZoom = 1;
+    translateX = 0;
+    translateY = 0;
+
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+    renderCurrentImage();
+  }
+
+  function closeLightbox() {
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+  }
+
+  function renderCurrentImage() {
+    if (!imgElement || galleryItems.length === 0) return;
+    const item = galleryItems[currentIndex];
+    imgElement.src = item.src;
+    imgElement.alt = item.alt || 'Project image';
+    if (caption) caption.textContent = item.alt || 'Project image';
+    if (counter) counter.textContent = `${currentIndex + 1} / ${galleryItems.length}`;
+
+    if (prevBtn) prevBtn.style.display = galleryItems.length > 1 ? 'flex' : 'none';
+    if (nextBtn) nextBtn.style.display = galleryItems.length > 1 ? 'flex' : 'none';
+
+    resetZoom();
+  }
+
+  function resetZoom() {
+    currentZoom = 1;
+    translateX = 0;
+    translateY = 0;
+    isDragging = false;
+    if (viewport) viewport.style.cursor = 'grab';
+    applyTransform();
+  }
+
+  function applyTransform() {
+    if (!imgElement) return;
+    imgElement.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentZoom})`;
+    if (zoomLevelBtn) zoomLevelBtn.textContent = `${Math.round(currentZoom * 100)}%`;
+  }
+
+  function setZoom(newZoom: number) {
+    currentZoom = Math.max(0.5, Math.min(4, newZoom));
+    if (currentZoom === 1) {
+      translateX = 0;
+      translateY = 0;
+    }
+    applyTransform();
+  }
+
+  function nextImage() {
+    if (galleryItems.length <= 1) return;
+    currentIndex = (currentIndex + 1) % galleryItems.length;
+    renderCurrentImage();
+  }
+
+  function prevImage() {
+    if (galleryItems.length <= 1) return;
+    currentIndex = (currentIndex - 1 + galleryItems.length) % galleryItems.length;
+    renderCurrentImage();
+  }
+
+  // Button Listeners
+  document.getElementById('lightbox-close')?.addEventListener('click', closeLightbox);
+  document.getElementById('lightbox-zoom-in')?.addEventListener('click', () => setZoom(currentZoom + 0.3));
+  document.getElementById('lightbox-zoom-out')?.addEventListener('click', () => setZoom(currentZoom - 0.3));
+  zoomLevelBtn?.addEventListener('click', () => {
+    if (currentZoom !== 1) resetZoom();
+    else setZoom(2);
+  });
+
+  // Stop Event Propagation on Navigation Arrows
+  ['pointerdown', 'mousedown', 'touchstart', 'click'].forEach((evtType) => {
+    prevBtn?.addEventListener(evtType, (e) => {
+      e.stopPropagation();
+      if (evtType === 'click') prevImage();
+    });
+    nextBtn?.addEventListener(evtType, (e) => {
+      e.stopPropagation();
+      if (evtType === 'click') nextImage();
+    });
+  });
+
+  // Toggle Zoom on Image Click if not dragging
+  imgElement?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (currentZoom === 1) setZoom(2);
+    else resetZoom();
+  });
+
+  // Smooth Pointer Drag / Pan on Viewport
+  viewport?.addEventListener('pointerdown', (e) => {
+    if (currentZoom <= 1) return;
+    e.preventDefault();
+    isDragging = true;
+    startX = e.clientX - translateX;
+    startY = e.clientY - translateY;
+    try { viewport.setPointerCapture(e.pointerId); } catch (_) {}
+    viewport.style.cursor = 'grabbing';
+  });
+
+  viewport?.addEventListener('pointermove', (e) => {
+    if (isDragging && currentZoom > 1) {
+      e.preventDefault();
+      translateX = e.clientX - startX;
+      translateY = e.clientY - startY;
+      applyTransform();
+    }
+  });
+
+  function stopDrag(e: PointerEvent) {
+    if (isDragging) {
+      isDragging = false;
+      try { viewport?.releasePointerCapture(e.pointerId); } catch (_) {}
+      if (viewport) viewport.style.cursor = 'grab';
+    }
+  }
+
+  viewport?.addEventListener('pointerup', stopDrag);
+  viewport?.addEventListener('pointercancel', stopDrag);
+
+  // Wheel Zoom
+  viewport?.addEventListener('wheel', (e) => {
+    if (modal?.classList.contains('hidden')) return;
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.15 : -0.15;
+    setZoom(currentZoom + delta);
+  }, { passive: false });
+
+  // Keyboard Shortcuts
+  window.addEventListener('keydown', (e) => {
+    if (modal?.classList.contains('hidden')) return;
+    if (e.key === 'Escape') closeLightbox();
+    else if (e.key === 'ArrowRight') nextImage();
+    else if (e.key === 'ArrowLeft') prevImage();
+    else if (e.key === '+' || e.key === '=') setZoom(currentZoom + 0.25);
+    else if (e.key === '-' || e.key === '_') setZoom(currentZoom - 0.25);
+    else if (e.key === '0') resetZoom();
+  });
+
+  (window as any).openLightbox = openLightbox;
+</script>

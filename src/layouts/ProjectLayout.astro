@@ -1,72 +1,82 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import type { CollectionEntry } from 'astro:content';
-import { Image } from 'astro:assets';
+import ProjectSectionRenderer from '../components/ProjectSectionRenderer.astro';
+import ImageLightboxModal from '../components/ImageLightboxModal.astro';
 
 interface Props {
   project: CollectionEntry<'projects'>;
 }
 
 const { project } = Astro.props;
-const { title, subtitle, coverImage, coverAlt, githubUrl, widgets } = project.data;
+const { title, subtitle, coverImage, coverAlt, githubUrl, cta, imageSide, widgets } = project.data;
+
+// Normalize CTA links from frontmatter
+let ctaLinks: { text: string; url: string }[] = [];
+if (cta) {
+  if (Array.isArray(cta)) {
+    ctaLinks = cta;
+  } else if (typeof cta === 'object') {
+    ctaLinks = Object.entries(cta).map(([text, url]) => ({ text, url }));
+  }
+} else if (githubUrl) {
+  ctaLinks = [{ text: 'Find out more in Github repository', url: githubUrl }];
+}
+
+const coverSrc = coverImage?.src || (typeof coverImage === 'string' ? coverImage : undefined);
 ---
 
 <BaseLayout title={`${title} - Filip Řeháček`} description={project.data.description}>
   <main class="px-[calc(100%/2-730px)] mx-5 mt-10">
-    <h1 class="xl:text-4xl text-3xl font-bold">
-      {title}<span class="text-lg"> {subtitle}</span>
+    <h1 class="xl:text-4xl text-3xl font-bold mb-6">
+      {title}<span class="text-lg text-slate-300"> {subtitle}</span>
     </h1>
 
-    <div
-      class="flex flex-row justify-between align-top md:flex-nowrap xl:flex-nowrap flex-wrap mt-4"
-    >
-      <div class="prose prose-invert max-w-none flex-1">
-        <slot />
+    <ProjectSectionRenderer coverImageSrc={coverSrc} coverAlt={coverAlt} imageSide={imageSide}>
+      <slot />
 
-        {widgets && widgets.length > 0 && (
-          <div class="pt-8">
-            <h2 class="xl:text-3xl text-2xl pb-2 font-bold">
-              Widgets currently available
-            </h2>
-            <ul class="text-lg list-disc ml-10">
-              {widgets.map((widget) => (
-                <li>
-                  <b>{widget.name}</b> - {widget.description}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-
-      <Image
-        src={coverImage}
-        alt={coverAlt}
-        class="rounded-2xl md:ml-5 xl:ml-5 mt-5 ml-0 w-full md:max-w-[30%] xl:max-w-[30%] min-w-[300px] h-fit"
-        loading="eager"
-        fetchpriority="high"
-      />
-    </div>
+      {widgets && widgets.length > 0 && (
+        <div class="pt-6">
+          <h2 class="xl:text-2xl text-xl pb-2 font-bold text-purple-300">
+            Widgets currently available
+          </h2>
+          <ul class="text-lg list-disc ml-6 space-y-1">
+            {widgets.map((widget) => (
+              <li>
+                <b>{widget.name}</b> - {widget.description}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </ProjectSectionRenderer>
 
     <div
-      class="pb-10 pt-14 flex flex-wrap gap-3 justify-between text-sm md:text-lg xl:text-lg font-semibold"
+      class="pb-10 pt-10 flex flex-wrap gap-4 items-center justify-between text-sm md:text-lg font-semibold border-t border-white/10 mt-12"
     >
-      <a href="/projects" class="group">
-        &lt;- <span class="group-hover:underline">Back</span>
+      <a href="/projects" class="group flex items-center gap-1.5 hover:text-purple-400 transition">
+        &lt;- <span class="group-hover:underline">Back to projects</span>
       </a>
-      {githubUrl && (
-        <a
-          href={githubUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="group text-right"
-        >
-          <span class="group-hover:underline"
-            >Find out more in Github repository</span
-          >
-          -&gt;
-        </a>
+
+      {ctaLinks.length > 0 && (
+        <div class="flex flex-wrap gap-3 items-center">
+          {ctaLinks.map((link) => (
+            <a
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-5 py-2.5 rounded-full bg-bg3 hover:bg-bg4 border-2 border-white hover:border-purple-400 text-white font-medium text-sm md:text-base transition-all transform hover:scale-[1.03] shadow-lg flex items-center gap-2 group"
+            >
+              <span class="group-hover:underline">{link.text}</span>
+              <svg class="w-4 h-4 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          ))}
+        </div>
       )}
     </div>
   </main>
+
+  <ImageLightboxModal />
 </BaseLayout>

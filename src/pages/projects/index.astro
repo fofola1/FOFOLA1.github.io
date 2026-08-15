@@ -10,7 +10,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
   <main class="px-[calc(100%/2-730px)] mx-5 mt-10">
     <h1 class="font-bold xl:text-4xl text-3xl mb-6">Projects</h1>
     <div
-      class="grid grid-flow-row gap-5 auto-cols-max xl:grid-cols-3 md:grid-cols-2 grid-cols-1 auto-rows-auto justify-center"
+      class="grid grid-flow-row gap-5 auto-cols-max lg:grid-cols-3 grid-cols-1 auto-rows-auto justify-center"
     >
       {
         projects.map((project) => (

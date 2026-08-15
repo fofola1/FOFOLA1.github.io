@@ -5,7 +5,10 @@ import AboutPreviewCard from '../components/AboutPreviewCard.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import { getCollection } from 'astro:content';
 
-const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const projects = (await getCollection('projects'))
+  .filter((p) => p.data.featured)
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 3);
 ---
 
 <BaseLayout title="Filip Řeháček">
@@ -23,7 +26,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
         </h2>
       </a>
       <div
-        class="grid grid-flow-row gap-5 auto-cols-max xl:grid-cols-3 md:grid-cols-2 grid-cols-1 auto-rows-auto justify-center"
+        class="grid grid-flow-row gap-5 auto-cols-max lg:grid-cols-3 grid-cols-1 auto-rows-auto justify-center"
       >
         {
           projects.map((project) => (

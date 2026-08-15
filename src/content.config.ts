@@ -11,6 +11,13 @@ const projects = defineCollection({
       coverImage: image(),
       coverAlt: z.string().default('Project image'),
       githubUrl: z.string().url().optional(),
+      cta: z
+        .union([
+          z.array(z.object({ text: z.string(), url: z.string().url() })),
+          z.record(z.string(), z.string().url()),
+        ])
+        .optional(),
+      imageSide: z.enum(['left', 'right', 'alternate']).default('right'),
       tags: z.array(z.string()).default([]),
       featured: z.boolean().default(false),
       widgets: z

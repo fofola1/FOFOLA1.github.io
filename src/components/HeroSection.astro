@@ -1,58 +1,287 @@
 ---
+import { Image } from 'astro:assets';
+import profileImg from '../assets/img/profile.png';
+
+// Configurable list of skills/tools for the ambient background.
+// You can easily add or remove any items here!
+export const toolsList = [
+  'Python',
+  'C#',
+  'Kotlin',
+  'C',
+  'Java',
+  'PHP',
+  'JavaScript',
+  'HTML',
+  'CSS',
+  'Tailwind',
+  'Django',
+  'PostgreSQL',
+  'SQLite',
+  'GitHub',
+  'React',
+  'Node.js',
+  'Astro',
+  'Zensical',
+  'Fluent UI',
+  'Azure',
+  'Svelte',
+  'Next.js',
+  'Vite',
+  'VS Code',
+  'Android Studio',
+  'Docker',
+  'DevOps',
+  'Linux',
+  'Git',
+  'CI/CD',
+];
+
+const availableSizes = [
+  'text-xs md:text-sm xl:text-base',
+  'text-sm md:text-base xl:text-lg',
+  'text-base md:text-xl xl:text-2xl',
+  'text-xl md:text-3xl xl:text-4xl',
+  'text-2xl md:text-4xl xl:text-5xl',
+  'text-3xl md:text-5xl xl:text-6xl',
+  'text-4xl md:text-6xl xl:text-7xl',
+];
+
+// Simple deterministic pseudo-random number generator for SSR consistency
+function pseudoRandom(seed: number) {
+  const x = Math.sin(seed * 9999 + 1) * 10000;
+  return x - Math.floor(x);
+}
+
+// Build-time non-overlapping placement generator for initial SSR render
+interface SSRItem {
+  name: string;
+  leftPct: number;
+  topPct: number;
+  sizeClass: string;
+  delay: string;
+  duration: string;
+  visible: boolean;
+}
+
+const buildPlacedBoxes: { left: number; top: number; right: number; bottom: number }[] = [];
+
+const floatingItems: SSRItem[] = toolsList.map((tool, index) => {
+  const r1 = pseudoRandom(index * 3 + 1);
+  const r2 = pseudoRandom(index * 3 + 2);
+  const r3 = pseudoRandom(index * 3 + 3);
+
+  const sizeClass = availableSizes[Math.floor(r1 * availableSizes.length)];
+  // Estimated size in percentage of canvas
+  const estWidth = 8 + tool.length * 0.9;
+  const estHeight = 6;
+
+  let bestLeft = 5;
+  let bestTop = 10;
+  let placed = false;
+
+  // Stratified top % target: spread evenly from 8% down to 94%
+  const preferredMinTop = 8 + (index / toolsList.length) * (86 - estHeight) * 0.85;
+  const preferredMaxTop = Math.min(94 - estHeight, preferredMinTop + 30);
+
+  for (let attempt = 0; attempt < 80; attempt++) {
+    const candidateLeft = 3 + pseudoRandom(index * 100 + attempt * 17) * (94 - estWidth);
+    const minT = attempt < 35 ? preferredMinTop : 8;
+    const maxT = attempt < 35 ? preferredMaxTop : 94 - estHeight;
+    const candidateTop = minT + pseudoRandom(index * 200 + attempt * 23) * Math.max(1, maxT - minT);
+
+    const itemRect = {
+      left: candidateLeft,
+      top: candidateTop,
+      right: candidateLeft + estWidth,
+      bottom: candidateTop + estHeight,
+    };
+
+    // Check collision with previously placed tools
+    const collidesTools = buildPlacedBoxes.some(
+      (b) =>
+        !(
+          itemRect.right + 3 < b.left ||
+          itemRect.left > b.right + 3 ||
+          itemRect.bottom + 3 < b.top ||
+          itemRect.top > b.bottom + 3
+        )
+    );
+
+    if (!collidesTools) {
+      bestLeft = candidateLeft;
+      bestTop = candidateTop;
+      buildPlacedBoxes.push(itemRect);
+      placed = true;
+      break;
+    }
+  }
+
+  const durationSec = (6.5 + r2 * 9.5).toFixed(1);
+  const delaySec = (-14 + r3 * 20).toFixed(1);
+
+  return {
+    name: tool,
+    leftPct: parseFloat(bestLeft.toFixed(1)),
+    topPct: parseFloat(bestTop.toFixed(1)),
+    sizeClass,
+    duration: `${durationSec}s`,
+    delay: `${delaySec}s`,
+    visible: placed,
+  };
+});
 ---
 
-<div class="xl:h-[913px] md:h-[600px] h-[500px] relative mx-5">
-  <h1
-    class="font-kode xl:pt-[130px] xl:text-7xl font-bold underline inline-block pt-[50px] md:text-5xl text-3xl pl-[5px]"
-  >
-    Filip Řeháček
-  </h1>
+<div id="hero-container" class="xl:h-[880px] md:h-[680px] min-h-[580px] relative mx-5 overflow-hidden">
+  <div id="hero-main-card" class="flex flex-col md:flex-row items-center justify-center md:justify-start md:pl-16 xl:pl-36 gap-6 md:gap-10 pt-[40px] xl:pt-[110px] relative z-10 text-center md:text-left">
+    <div class="relative flex-shrink-0">
+      <div class="w-36 h-36 md:w-48 md:h-48 xl:w-56 xl:h-56 rounded-full overflow-hidden border-4 border-purp/40 shadow-[0_0_35px_rgba(159,98,240,0.4)] bg-bg3 flex items-center justify-center">
+        <Image
+          src={profileImg}
+          alt="Filip Řeháček profile picture"
+          class="w-full h-full object-cover"
+          loading="eager"
+        />
+      </div>
+    </div>
 
-  <div>
-    <p
-      class="xl:text-[70px] md:text-[40px] text-[30px] text-purp block mt-[20px] xl:pl-[10px] font-medium pl-[15px]"
-    >
-      Backend developer
-    </p>
-    <p
-      class="xl:text-[30px] md:text-[20px] text-[20px] text-purp block md:mt-[-20px] xl:mt-[-25px] mt-[-15px] xl:pl-[10px] pl-[15px]"
-    >
-      and
-    </p>
-    <p
-      class="xl:text-[70px] md:text-[40px] text-[30px] text-purp block md:mt-[-8px] xl:mt-[-8px] mt-[-10px] xl:pl-[10px] font-medium pl-[15px] leading-10 md:leading-none xl:leading-none"
-    >
-      Software engineer
-    </p>
+    <div class="flex flex-col items-center md:items-start text-center md:text-left">
+      <h1
+        class="font-kode text-nowrap font-bold inline-block xl:text-7xl md:text-5xl text-3xl text-white tracking-tight -ml-5"
+      >
+        <span class="text-purp [text-shadow:_0_0_25px_rgba(159,98,240,0.45)]">~/filip</span> <span class="text-white/60">$</span> <span class="underline underline-offset-8 decoration-purp/60">whoami</span>
+      </h1>
+
+      <div class="mt-3 text-center md:text-left">
+        <p
+          class="xl:text-[46px] md:text-[30px] text-[22px]  [text-shadow:_0_0_20px_rgba(159,98,240,0.45)] block font-medium"
+        >
+          Backend developer
+        </p>
+        <p
+          class="xl:text-[20px] md:text-[15px] text-[14px]  [text-shadow:_0_0_15px_rgba(159,98,240,0.45)] block xl:-mt-2 xl:-mb-0.5 md:-mt-1.5 md:-mb-0.5 -mt-1 -mb-0.5 leading-tight"
+        >
+          with
+        </p>
+        <p
+          class="xl:text-[46px] md:text-[30px] text-[22px]  [text-shadow:_0_0_20px_rgba(159,98,240,0.45)] block font-medium leading-tight"
+        >
+          DevOps mindset
+        </p>
+      </div>
+    </div>
   </div>
-  <span
-    class="select-none bg-text xl:text-[160px] xl:top-0 xl:right-14 xl:text-right md:text-[120px] md:left-72 md:text-left md:top-52 text-[60px] right-10 text-right top-10"
-    style="animation-delay: 3s"
-    >Python</span
-  >
-  <span
-    class="select-none bg-text xl:text-[250px] xl:right-0 xl:top-40 md:text-[180px] md:right-5 md:top-0 text-[100px] right-0 top-36"
-    style="animation-delay: 0s"
-    >C#</span
-  >
-  <span
-    class="select-none bg-text xl:text-[170px] xl:right-0 xl:bottom-24 md:text-[80px] md:right-60 md:bottom-32 text-[80px] right-10 bottom-24"
-    style="animation-delay: 15s"
-    >Kotlin</span
-  >
-  <span
-    class="select-none bg-text xl:text-[310px] xl:right-72 xl:bottom-52 xl:text-right md:text-[200px] md:left-10 md:bottom-24 text-[180px] left-10 bottom-5"
-    style="animation-delay: 9s"
-    >c</span
-  >
-  <span
-    class="select-none bg-text xl:text-[230px] xl:left-8 xl:bottom-52 md:text-[100px] md:left-[450px] md:bottom-8 text-[80px] left-20 bottom-48"
-    style="animation-delay: 12s"
-    >Java</span
-  >
-  <span
-    class="select-none bg-text xl:text-[100px] xl:left-5 xl:bottom-5 xl:text-left md:text-[50px] md:left-20 md:bottom-0 md:text-left text-[50px] bottom-0 right-3 text-right"
-    style="animation-delay: 6s"
-    >Android studio</span
-  >
+
+  <div class="absolute inset-0 pointer-events-none select-none z-0">
+    {
+      floatingItems.map((item) => (
+        <span
+          class={`hero-tool-item select-none bg-text ${item.sizeClass}`}
+          style={`left: ${item.leftPct}%; top: ${item.topPct}%; animation-delay: ${item.delay}; animation-duration: ${item.duration}; ${item.visible ? '' : 'display: none;'}`}
+        >
+          {item.name}
+        </span>
+      ))
+    }
+  </div>
 </div>
+
+<script>
+  function layoutHeroTools() {
+    const container = document.getElementById('hero-container');
+    if (!container) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const toolElements = Array.from(container.querySelectorAll('.hero-tool-item')) as HTMLElement[];
+    const placedBoxes: { left: number; top: number; right: number; bottom: number }[] = [];
+    const minMargin = 8; // Minimum gap between floating tools
+
+    const minY = 45; // Top padding so tools don't touch/glue to header nav
+    const maxYBoundary = containerRect.height - 15; // Bottom boundary near lower edge
+    const totalTools = toolElements.length;
+
+    toolElements.forEach((el, index) => {
+      // Temporarily reveal to measure dimensions
+      const originalDisplay = el.style.display;
+      el.style.display = 'block';
+      el.style.visibility = 'hidden';
+
+      const itemWidth = el.offsetWidth || 80;
+      const itemHeight = el.offsetHeight || 30;
+
+      el.style.visibility = '';
+      el.style.display = originalDisplay;
+
+      const maxX = Math.max(15, containerRect.width - itemWidth - 15);
+      const maxY = Math.max(minY + 10, maxYBoundary - itemHeight);
+
+      if (maxX <= 15 || maxY <= minY) {
+        el.style.display = 'none';
+        return;
+      }
+
+      let placed = false;
+      const maxAttempts = 120;
+
+      // Stratified vertical placement: encourage tools to fill top to bottom evenly
+      const preferredMinY = minY + (index / totalTools) * (maxY - minY) * 0.85;
+      const preferredMaxY = Math.min(maxY, preferredMinY + (maxY - minY) * 0.35);
+
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        const candidateX = Math.floor(15 + Math.random() * (maxX - 15));
+        const yRangeMin = attempt < 40 ? preferredMinY : minY;
+        const yRangeMax = attempt < 40 ? preferredMaxY : maxY;
+        const candidateY = Math.floor(yRangeMin + Math.random() * Math.max(1, yRangeMax - yRangeMin));
+
+        const itemRect = {
+          left: candidateX,
+          top: candidateY,
+          right: candidateX + itemWidth,
+          bottom: candidateY + itemHeight,
+        };
+
+        // Check collision with previously placed tool boxes
+        const collidesTools = placedBoxes.some(
+          (box) =>
+            !(
+              itemRect.right + minMargin < box.left ||
+              itemRect.left > box.right + minMargin ||
+              itemRect.bottom + minMargin < box.top ||
+              itemRect.top > box.bottom + minMargin
+            )
+        );
+
+        if (!collidesTools) {
+          el.style.left = `${candidateX}px`;
+          el.style.top = `${candidateY}px`;
+          el.style.display = '';
+          placedBoxes.push(itemRect);
+          placed = true;
+          break;
+        }
+      }
+
+      if (!placed) {
+        // Hide excess item if canvas is too crowded to fit without overlap
+        el.style.display = 'none';
+      }
+    });
+  }
+
+  // Run on mount
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', layoutHeroTools);
+  } else {
+    layoutHeroTools();
+  }
+
+  // Debounced recalculation on resize
+  let resizeTimeout: ReturnType<typeof setTimeout>;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(layoutHeroTools, 150);
+  });
+</script>
+
+
+
