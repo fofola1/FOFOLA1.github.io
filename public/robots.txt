@@ -11,4 +11,4 @@ Allow: /
 # Disallow: /private/
 
 # Sitemap location
-Sitemap: https://rehacek.tech/sitemap.xml
+Sitemap: https://rehacek.dev/sitemap.xml
